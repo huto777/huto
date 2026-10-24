@@ -1,666 +1,788 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <title>Hűtőkészlet</title>
 
   <style>
     :root {
+      color-scheme: dark;
       --bg: #10141c;
-      --panel: #1a2230;
-      --panel2: #242e3d;
-      --text: #f1f5fb;
-      --muted: #9ba9bb;
-      --blue: #4b9cff;
-      --red: #ff6868;
-      --green: #63d99a;
-      --border: #344154;
+      --panel: #191f2b;
+      --panel2: #222a38;
+      --text: #f1f5f9;
+      --muted: #9ba8ba;
+      --border: #303b4d;
+      --accent: #54a7ff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
-      padding: 18px;
-      padding-bottom: 100px;
+      padding: 24px 14px 50px;
       background: var(--bg);
       color: var(--text);
-      font-family: Arial, sans-serif;
+      font-family: system-ui, Arial, sans-serif;
     }
 
     .container {
-      max-width: 720px;
+      width: 100%;
+      max-width: 850px;
       margin: auto;
     }
 
+    header {
+      margin-bottom: 24px;
+    }
+
     h1 {
-      margin: 8px 0 5px;
-      font-size: 28px;
+      margin: 0 0 6px;
+      font-size: clamp(28px, 6vw, 38px);
+      letter-spacing: -1px;
+    }
+
+    .subtitle, .muted {
+      color: var(--muted);
     }
 
     .subtitle {
-      color: var(--muted);
-      margin-bottom: 22px;
+      margin: 0;
+      font-size: 14px;
     }
 
-    input, select, button {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px;
-      font-size: 16px;
-    }
-
-    input, select {
-      color: var(--text);
+    .panel {
       background: var(--panel);
-    }
-
-    button {
-      background: var(--blue);
-      color: #071322;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .search {
-      margin-bottom: 16px;
-    }
-
-    .filters {
-      display: flex;
-      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
       margin-bottom: 18px;
     }
 
-    .filters select {
-      min-width: 0;
+    h2 {
+      margin: 0 0 15px;
+      font-size: 19px;
     }
 
-    .product {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 15px;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-
-    .product-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .product-name {
-      font-size: 18px;
-      font-weight: bold;
-      overflow-wrap: anywhere;
-    }
-
-    .number {
-      color: var(--muted);
-      font-size: 14px;
-      white-space: nowrap;
-    }
-
-    .details {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .expiry {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 7px;
-      font-weight: bold;
-      margin-top: 8px;
+    label {
+      display: block;
+      margin-bottom: 6px;
       font-size: 13px;
-    }
-
-    .expired {
-      color: #fff;
-      background: #b92e3a;
-    }
-
-    .soon {
-      color: #fff;
-      background: #176bd1;
-    }
-
-    .medium {
-      color: #102417;
-      background: #63d99a;
-    }
-
-    .normal {
-      color: #dce4ee;
-      background: #364253;
-    }
-
-    .empty, .message {
-      padding: 18px;
-      background: var(--panel);
-      border-radius: 12px;
       color: var(--muted);
-      text-align: center;
-      margin-top: 12px;
-      overflow-wrap: anywhere;
     }
 
-    .message.error {
-      color: #ff8585;
+    input, select, button {
+      font: inherit;
+      border-radius: 10px;
     }
 
-    .message.success {
-      color: var(--green);
-    }
-
-    .add-button {
-      position: fixed;
-      right: 22px;
-      bottom: 22px;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      font-size: 32px;
-      padding: 0;
-      box-shadow: 0 4px 20px #0008;
-      z-index: 5;
-    }
-
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      background: #000b;
-      padding: 16px;
-      overflow-y: auto;
-    }
-
-    .modal.open {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 20px;
+    input, select {
       width: 100%;
-      max-width: 480px;
-      max-height: 95vh;
-      overflow-y: auto;
+      min-width: 0;
+      padding: 12px;
+      background: #101722;
+      border: 1px solid var(--border);
+      color: var(--text);
+      outline: none;
     }
 
-    .modal h2 {
-      margin-top: 0;
+    input:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
     .field {
-      margin-bottom: 14px;
+      min-width: 0;
     }
 
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--muted);
-      font-size: 14px;
+    .full {
+      grid-column: 1 / -1;
     }
 
-    .actions {
-      display: flex;
-      gap: 9px;
-      margin-top: 18px;
+    button {
+      border: 0;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 650;
     }
 
-    .actions button {
-      flex: 1;
+    .primary {
+      width: 100%;
+      background: #3988ef;
+      color: white;
+    }
+
+    .primary:disabled {
+      opacity: .55;
+      cursor: wait;
     }
 
     .secondary {
       background: var(--panel2);
       color: var(--text);
+      border: 1px solid var(--border);
     }
 
     .danger {
-      background: #b92e3a;
-      color: white;
+      background: #3a2028;
+      color: #ffb7c2;
+      border: 1px solid #63303d;
     }
 
-    #delete-button {
-      margin-top: 10px;
+    .search-wrap {
+      margin-bottom: 14px;
     }
 
-    .hidden {
-      display: none !important;
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
-    @media (max-width: 420px) {
-      body { padding: 12px; padding-bottom: 95px; }
-      h1 { font-size: 25px; }
-      .filters { flex-direction: column; }
+    .toolbar h2 {
+      margin: 0;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .product-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .product {
+      display: flex;
+      gap: 13px;
+      align-items: flex-start;
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      border-left: 5px solid #8993a3;
+      background: #202735;
+    }
+
+    .product.expired {
+      border-left-color: #ff4f61;
+      background: #321e28;
+    }
+
+    .product.soon-blue {
+      border-left-color: #429bff;
+      background: #192c43;
+    }
+
+    .product.soon-green {
+      border-left-color: #38c985;
+      background: #19362e;
+    }
+
+    .product.normal {
+      border-left-color: #8b96a8;
+      background: #202735;
+    }
+
+    .number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, .22);
+      font-size: 17px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-size: 16px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .product-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px 10px;
+      margin-top: 5px;
+      font-size: 13px;
+      color: #d0d8e4;
+    }
+
+    .product-status {
+      margin-top: 6px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .expired .product-status {
+      color: #ff8795;
+    }
+
+    .soon-blue .product-status {
+      color: #80bdff;
+    }
+
+    .soon-green .product-status {
+      color: #76e6b1;
+    }
+
+    .normal .product-status {
+      color: #bdc7d6;
+    }
+
+    .product-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .product-actions button {
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .empty {
+      padding: 30px 12px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .message {
+      display: none;
+      margin-bottom: 14px;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.error {
+      color: #ffc0c8;
+      background: #3a2028;
+      border: 1px solid #63303d;
+    }
+
+    .message.success {
+      color: #9cf0c6;
+      background: #19362e;
+      border: 1px solid #28654e;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 22px;
+    }
+
+    @media (max-width: 540px) {
+      body {
+        padding: 18px 10px 35px;
+      }
+
+      .panel {
+        padding: 14px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+
+      .product {
+        gap: 9px;
+        padding: 11px;
+      }
+
+      .number {
+        flex-basis: 35px;
+        height: 35px;
+        font-size: 15px;
+      }
+
+      .product-actions button {
+        padding: 7px;
+      }
     }
   </style>
 </head>
 
 <body>
   <main class="container">
-    <h1>🧊 Hűtőkészlet</h1>
-    <div class="subtitle">Közös családi készlet</div>
+    <header>
+      <h1>🥬 Hűtőkészlet</h1>
+      <p class="subtitle">
+        Tudd, mi van a hűtőben, és mi jár le leghamarabb.
+      </p>
+    </header>
 
-    <input
-      id="search"
-      class="search"
-      type="search"
-      placeholder="Keresés név vagy sorszám alapján…"
-      autocomplete="off"
-    >
+    <div id="message" class="message" role="status"></div>
 
-    <div class="filters">
-      <select id="category-filter" aria-label="Kategória szűrése">
-        <option value="">Minden kategória</option>
-        <option>Tejtermék</option>
-        <option>Hús, hal</option>
-        <option>Zöldség, gyümölcs</option>
-        <option>Pékáru</option>
-        <option>Ital</option>
-        <option>Konzerv</option>
-        <option>Fagyasztott</option>
-        <option>Egyéb</option>
-      </select>
+    <section class="panel">
+      <h2 id="formTitle">＋ Új termék</h2>
 
-      <select id="sort-filter" aria-label="Rendezés">
-        <option value="expiry">Lejárat szerint</option>
-        <option value="number">Sorszám szerint</option>
-        <option value="name">Név szerint</option>
-      </select>
-    </div>
+      <form id="productForm">
+        <div class="form-grid">
+          <div class="field full">
+            <label for="name">Termék neve</label>
+            <input
+              id="name"
+              maxlength="120"
+              placeholder="Pl. tej, alma, csirkemell"
+              required
+            >
+          </div>
 
-    <div id="status" class="message">Készlet betöltése…</div>
-    <div id="products"></div>
-  </main>
+          <div class="field">
+            <label for="category">Kategória</label>
+            <select id="category" required>
+              <option value="Zöldség, gyümölcs">Zöldség, gyümölcs</option>
+              <option value="Hús">Hús</option>
+              <option value="Tejtermék">Tejtermék</option>
+              <option value="Ital">Ital</option>
+              <option value="Egyéb">Egyéb</option>
+            </select>
+          </div>
 
-  <button id="add-button" class="add-button" aria-label="Termék hozzáadása">+</button>
+          <div class="field">
+            <label for="expiry">Lejárati dátum</label>
+            <input id="expiry" type="date" required>
+          </div>
 
-  <div id="editor" class="modal">
-    <section class="modal-content">
-      <h2 id="editor-title">Új termék</h2>
-
-      <form id="product-form">
-        <div class="field">
-          <label for="product-number">Sorszám</label>
-          <input id="product-number" type="number" min="1" step="1" required>
+          <div class="field full">
+            <button id="saveButton" class="primary" type="submit">
+              Termék hozzáadása
+            </button>
+            <button
+              id="cancelEdit"
+              class="secondary full"
+              type="button"
+              style="display:none; margin-top:8px"
+            >
+              Mégse
+            </button>
+          </div>
         </div>
-
-        <div class="field">
-          <label for="product-name">Termék neve</label>
-          <input id="product-name" maxlength="120" required>
-        </div>
-
-        <div class="field">
-          <label for="expiry-date">Lejárati dátum</label>
-          <input id="expiry-date" type="date" required>
-        </div>
-
-        <div class="field">
-          <label for="product-category">Kategória</label>
-          <select id="product-category" required>
-            <option>Tejtermék</option>
-            <option>Hús, hal</option>
-            <option>Zöldség, gyümölcs</option>
-            <option>Pékáru</option>
-            <option>Ital</option>
-            <option>Konzerv</option>
-            <option>Fagyasztott</option>
-            <option>Egyéb</option>
-          </select>
-        </div>
-
-        <div id="form-message" class="message hidden"></div>
-
-        <div class="actions">
-          <button type="submit" id="save-button">Mentés</button>
-          <button type="button" id="cancel-editor" class="secondary">Mégse</button>
-        </div>
-
-        <button type="button" id="delete-button" class="danger hidden">
-          Termék törlése
-        </button>
       </form>
     </section>
-  </div>
+
+    <section class="panel">
+      <div class="toolbar">
+        <h2>📦 Termékek</h2>
+        <span id="count" class="count">Betöltés…</span>
+      </div>
+
+      <div class="search-wrap">
+        <label for="search">Keresés név, kategória vagy sorszám alapján</label>
+        <input
+          id="search"
+          type="search"
+          placeholder="Pl. tej, hús, 12…"
+          autocomplete="off"
+        >
+      </div>
+
+      <div id="productList" class="product-list">
+        <div class="empty">Termékek betöltése…</div>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot" style="background:#ff4f61"></i>Lejárt</span>
+        <span><i class="dot" style="background:#429bff"></i>10 napon belül</span>
+        <span><i class="dot" style="background:#38c985"></i>11–30 nap</span>
+        <span><i class="dot" style="background:#8b96a8"></i>30 napnál több</span>
+      </div>
+    </section>
+
+    <p class="footer">A lista automatikusan a legkorábbi lejárat szerint rendeződik.</p>
+  </main>
 
   <script>
-    const API =
-      "https://tvotoadiuakjjxsqrexi.supabase.co/functions/v1/smooth-processor";
+    // A Supabase háttérprogram létrehozása után ide kerül a pontos URL.
+    const API_URL = "IDE_JON_A_SUPABASE_FUNCTION_URL";
 
-    const CATEGORIES = [
-      "Tejtermék",
-      "Hús, hal",
+    const categories = [
       "Zöldség, gyümölcs",
-      "Pékáru",
+      "Hús",
+      "Tejtermék",
       "Ital",
-      "Konzerv",
-      "Fagyasztott",
       "Egyéb"
     ];
 
-    const $ = id => document.getElementById(id);
+    const form = document.getElementById("productForm");
+    const nameInput = document.getElementById("name");
+    const categoryInput = document.getElementById("category");
+    const expiryInput = document.getElementById("expiry");
+    const searchInput = document.getElementById("search");
+    const productList = document.getElementById("productList");
+    const countElement = document.getElementById("count");
+    const messageElement = document.getElementById("message");
+    const saveButton = document.getElementById("saveButton");
+    const cancelEditButton = document.getElementById("cancelEdit");
+    const formTitle = document.getElementById("formTitle");
 
     let products = [];
     let editingId = null;
-    let loading = false;
+    let busy = false;
 
-    function showStatus(message, type = "") {
-      $("status").textContent = message;
-      $("status").className = "message " + type;
+    function showMessage(text, type = "error") {
+      messageElement.textContent = text;
+      messageElement.className = "message show " + type;
     }
 
-    function showFormMessage(message, type = "error") {
-      $("form-message").textContent = message;
-      $("form-message").className = "message " + type;
-      $("form-message").classList.remove("hidden");
+    function clearMessage() {
+      messageElement.textContent = "";
+      messageElement.className = "message";
     }
 
     async function api(action, data = {}) {
-      const response = await fetch(API, {
+      if (API_URL === "IDE_JON_A_SUPABASE_FUNCTION_URL") {
+        throw new Error(
+          "A Supabase-kapcsolat még nincs beállítva. Először a háttérprogramot kell létrehoznunk."
+        );
+      }
+
+      const response = await fetch(API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({ action, ...data })
       });
 
       let result;
+
       try {
         result = await response.json();
       } catch {
-        throw new Error("A szerver nem érvényes választ küldött.");
+        throw new Error("A szerver nem értelmezhető választ küldött.");
       }
 
-      if (!response.ok) {
-        throw new Error(result.error || "Szerverhiba: " + response.status);
+      if (!response.ok || result.error) {
+        throw new Error(result.error || "A művelet nem sikerült.");
       }
 
       return result.data;
     }
 
-    function dateDifference(dateString) {
+    function dayDifference(dateString) {
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const todayUTC = Date.UTC(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate()
+      );
 
-      const expiry = new Date(dateString + "T00:00:00");
-      return Math.round((expiry - today) / 86400000);
-    }
+      const parts = dateString.split("-").map(Number);
+      const expiryUTC = Date.UTC(parts[0], parts[1] - 1, parts[2]);
 
-    function expiryClass(days) {
-      if (days < 0) return "expired";
-      if (days <= 10) return "soon";
-      if (days <= 30) return "medium";
-      return "normal";
-    }
-
-    function expiryText(days) {
-      if (days < 0) return "Lejárt " + Math.abs(days) + " napja";
-      if (days === 0) return "Ma jár le";
-      if (days === 1) return "Holnap jár le";
-      return days + " nap van hátra";
+      return Math.round((expiryUTC - todayUTC) / 86400000);
     }
 
     function formatDate(dateString) {
-      const parts = dateString.split("-");
-      return parts[2] + "." + parts[1] + "." + parts[0] + ".";
+      const [year, month, day] = dateString.split("-");
+      return `${year}. ${month}. ${day}.`;
     }
 
-    function renderProducts() {
-      const query = $("search").value.trim().toLocaleLowerCase("hu");
-      const category = $("category-filter").value;
-      const sort = $("sort-filter").value;
+    function statusFor(product) {
+      const days = dayDifference(product.expiry_date);
 
-      let filtered = products.filter(product => {
-        const name = String(product.name).toLocaleLowerCase("hu");
-        const number = String(product.product_number ?? "");
-        const matchesSearch =
-          name.includes(query) || number.includes(query);
-        const matchesCategory =
-          !category || product.category === category;
+      if (days < 0) {
+        return {
+          className: "expired",
+          label: `${Math.abs(days)} napja lejárt`
+        };
+      }
 
-        return matchesSearch && matchesCategory;
+      if (days <= 10) {
+        return {
+          className: "soon-blue",
+          label: days === 0 ? "Ma jár le" : `${days} nap van hátra`
+        };
+      }
+
+      if (days <= 30) {
+        return {
+          className: "soon-green",
+          label: `${days} nap van hátra`
+        };
+      }
+
+      return {
+        className: "normal",
+        label: `${days} nap van hátra`
+      };
+    }
+
+    function sortProducts(items) {
+      return [...items].sort((a, b) => {
+        const dateCompare = a.expiry_date.localeCompare(b.expiry_date);
+        if (dateCompare !== 0) return dateCompare;
+
+        return Number(a.product_number) - Number(b.product_number);
+      });
+    }
+
+    function render() {
+      const query = searchInput.value.trim().toLocaleLowerCase("hu");
+
+      const filtered = sortProducts(products).filter(product => {
+        const searchable = [
+          product.name,
+          product.category,
+          String(product.product_number)
+        ].join(" ").toLocaleLowerCase("hu");
+
+        return searchable.includes(query);
       });
 
-      filtered.sort((a, b) => {
-        if (sort === "number") {
-          return Number(a.product_number) - Number(b.product_number);
-        }
-        if (sort === "name") {
-          return a.name.localeCompare(b.name, "hu");
-        }
-        return a.expiry_date.localeCompare(b.expiry_date);
-      });
+      countElement.textContent =
+        query ? `${filtered.length} / ${products.length} termék`
+              : `${products.length} termék`;
 
-      $("products").replaceChildren();
+      productList.replaceChildren();
 
       if (filtered.length === 0) {
         const empty = document.createElement("div");
         empty.className = "empty";
-        empty.textContent = products.length
-          ? "Nincs ilyen termék a készletben."
-          : "A készlet üres. A + gombbal adhatsz hozzá terméket.";
-        $("products").appendChild(empty);
+        empty.textContent = query
+          ? "Nincs találat erre a keresésre."
+          : "Még nincs termék. Add hozzá az elsőt!";
+        productList.appendChild(empty);
         return;
       }
 
       for (const product of filtered) {
-        const days = dateDifference(product.expiry_date);
+        const status = statusFor(product);
+
         const card = document.createElement("article");
-        card.className = "product";
-        card.tabIndex = 0;
-        card.setAttribute("role", "button");
-        card.setAttribute("aria-label", product.name + " szerkesztése");
-
-        const top = document.createElement("div");
-        top.className = "product-top";
-
-        const name = document.createElement("div");
-        name.className = "product-name";
-        name.textContent = product.name;
+        card.className = `product ${status.className}`;
 
         const number = document.createElement("div");
         number.className = "number";
-        number.textContent = String(product.product_number);
+        number.textContent = product.product_number;
 
-        top.append(name, number);
+        const info = document.createElement("div");
+        info.className = "product-info";
 
-        const details = document.createElement("div");
-        details.className = "details";
-        details.textContent =
-          product.category + " · Lejárat: " + formatDate(product.expiry_date);
+        const productName = document.createElement("div");
+        productName.className = "product-name";
+        productName.textContent = product.name;
 
-        const expiry = document.createElement("div");
-        expiry.className = "expiry " + expiryClass(days);
-        expiry.textContent = expiryText(days);
+        const meta = document.createElement("div");
+        meta.className = "product-meta";
 
-        card.append(top, details, expiry);
+        const category = document.createElement("span");
+        category.textContent = product.category;
 
-        card.addEventListener("click", () => openEditor(product));
-        card.addEventListener("keydown", event => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            openEditor(product);
-          }
-        });
+        const expiry = document.createElement("span");
+        expiry.textContent = formatDate(product.expiry_date);
 
-        $("products").appendChild(card);
+        const statusText = document.createElement("div");
+        statusText.className = "product-status";
+        statusText.textContent = status.label;
+
+        meta.append(category, expiry);
+        info.append(productName, meta, statusText);
+
+        const actions = document.createElement("div");
+        actions.className = "product-actions";
+
+        const editButton = document.createElement("button");
+        editButton.className = "secondary";
+        editButton.type = "button";
+        editButton.textContent = "Szerkesztés";
+        editButton.addEventListener("click", () => startEdit(product));
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "danger";
+        deleteButton.type = "button";
+        deleteButton.textContent = "Törlés";
+        deleteButton.addEventListener("click", () => deleteProduct(product));
+
+        actions.append(editButton, deleteButton);
+        card.append(number, info, actions);
+        productList.appendChild(card);
       }
     }
 
-    async function refresh() {
-      if (loading) return;
-      loading = true;
-      $("add-button").disabled = true;
-      showStatus("Készlet betöltése…");
-
+    async function loadProducts() {
       try {
-        products = await api("list");
-        if (!Array.isArray(products)) {
-          throw new Error("A szerver nem megfelelő adatokat küldött.");
-        }
-        renderProducts();
-        showStatus("Termékek száma: " + products.length, "success");
-      } finally {
-        loading = false;
-        $("add-button").disabled = false;
+        products = await api("list") || [];
+        render();
+        clearMessage();
+      } catch (error) {
+        productList.replaceChildren();
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "A terméklista jelenleg nem tölthető be.";
+        productList.appendChild(empty);
+        countElement.textContent = "Nem elérhető";
+        showMessage(error.message);
       }
     }
 
-    function availableNumber() {
-      const used = new Set(
-        products
-          .filter(p => p.id !== editingId)
-          .map(p => Number(p.product_number))
-      );
+    function startEdit(product) {
+      editingId = product.id;
+      nameInput.value = product.name;
+      categoryInput.value = product.category;
+      expiryInput.value = product.expiry_date;
 
-      let number = 1;
-      while (used.has(number)) number++;
-      return number;
+      formTitle.textContent = `✏️ ${product.product_number}. termék szerkesztése`;
+      saveButton.textContent = "Módosítás mentése";
+      cancelEditButton.style.display = "block";
+
+      form.scrollIntoView({ behavior: "smooth", block: "start" });
+      nameInput.focus();
     }
 
-    function openEditor(product = null) {
-      editingId = product ? Number(product.id) : null;
-      $("product-form").reset();
-      $("form-message").classList.add("hidden");
-
-      $("editor-title").textContent =
-        product ? "Termék szerkesztése" : "Új termék";
-
-      $("product-number").value = product
-        ? product.product_number
-        : availableNumber();
-
-      $("product-name").value = product ? product.name : "";
-      $("expiry-date").value = product ? product.expiry_date : "";
-      $("product-category").value = product
-        ? product.category
-        : "Egyéb";
-
-      $("delete-button").classList.toggle("hidden", !product);
-      $("editor").classList.add("open");
-      $("product-name").focus();
-    }
-
-    function closeEditor() {
-      $("editor").classList.remove("open");
+    function resetForm() {
       editingId = null;
+      form.reset();
+      categoryInput.value = categories[0];
+      formTitle.textContent = "＋ Új termék";
+      saveButton.textContent = "Termék hozzáadása";
+      cancelEditButton.style.display = "none";
     }
 
-    async function handleSave(event) {
+    cancelEditButton.addEventListener("click", () => {
+      resetForm();
+      clearMessage();
+    });
+
+    form.addEventListener("submit", async event => {
       event.preventDefault();
+      if (busy) return;
 
-      const productNumber = Number($("product-number").value);
-      const name = $("product-name").value.trim();
-      const expiryDate = $("expiry-date").value;
-      const category = $("product-category").value;
+      clearMessage();
 
-      if (!Number.isSafeInteger(productNumber) || productNumber < 1) {
-        showFormMessage("Adj meg érvényes, pozitív sorszámot.");
+      const name = nameInput.value.trim();
+      const category = categoryInput.value;
+      const expiry_date = expiryInput.value;
+
+      if (!name) {
+        showMessage("Írd be a termék nevét!");
         return;
       }
 
-      if (!name || !expiryDate || !CATEGORIES.includes(category)) {
-        showFormMessage("Töltsd ki helyesen az összes mezőt.");
+      if (!categories.includes(category)) {
+        showMessage("Válassz érvényes kategóriát!");
         return;
       }
 
-      const duplicate = products.some(product =>
-        Number(product.product_number) === productNumber &&
-        Number(product.id) !== editingId
-      );
-
-      if (duplicate) {
-        showFormMessage("Ez a sorszám már használatban van.");
+      if (!expiry_date) {
+        showMessage("Add meg a lejárati dátumot!");
         return;
       }
 
-      const payload = {
-        product_number: productNumber,
-        name,
-        expiry_date: expiryDate,
-        category
-      };
-
-      $("save-button").disabled = true;
+      busy = true;
+      saveButton.disabled = true;
+      saveButton.textContent = "Mentés…";
 
       try {
-        if (editingId === null) {
-          await api("add", payload);
+        if (editingId !== null) {
+          await api("update", {
+            id: editingId,
+            name,
+            category,
+            expiry_date
+          });
+          showMessage("A terméket módosítottuk.", "success");
         } else {
-          await api("update", { id: editingId, ...payload });
+          // A sorszámot a háttérprogram adja; a böngésző nem választ sorszámot.
+          await api("add", {
+            name,
+            category,
+            expiry_date
+          });
+          showMessage("A terméket hozzáadtuk.", "success");
         }
 
-        closeEditor();
-        await refresh();
+        resetForm();
+        await loadProducts();
       } catch (error) {
-        showFormMessage("Mentési hiba: " + error.message);
+        showMessage(error.message);
       } finally {
-        $("save-button").disabled = false;
+        busy = false;
+        saveButton.disabled = false;
+        saveButton.textContent =
+          editingId !== null ? "Módosítás mentése" : "Termék hozzáadása";
       }
-    }
+    });
 
-    async function handleDelete() {
-      if (editingId === null) return;
+    async function deleteProduct(product) {
+      const confirmed = confirm(
+        `Biztosan törlöd ezt a terméket?\n\n${product.product_number}. ${product.name}\n\nA felszabaduló sorszám később újra felhasználható.`
+      );
 
-      if (!confirm("Biztosan törlöd ezt a terméket? A sorszáma felszabadul.")) {
-        return;
-      }
+      if (!confirmed) return;
 
-      $("delete-button").disabled = true;
+      clearMessage();
 
       try {
-        await api("delete", { id: editingId });
-        closeEditor();
-        await refresh();
+        await api("delete", { id: product.id });
+        if (editingId === product.id) resetForm();
+        showMessage("A terméket töröltük.", "success");
+        await loadProducts();
       } catch (error) {
-        showFormMessage("Törlési hiba: " + error.message);
-      } finally {
-        $("delete-button").disabled = false;
+        showMessage(error.message);
       }
     }
 
-    $("product-form").addEventListener("submit", handleSave);
-    $("search").addEventListener("input", renderProducts);
-    $("category-filter").addEventListener("change", renderProducts);
-    $("sort-filter").addEventListener("change", renderProducts);
-    $("add-button").addEventListener("click", () => openEditor());
-    $("cancel-editor").addEventListener("click", closeEditor);
-    $("delete-button").addEventListener("click", handleDelete);
+    searchInput.addEventListener("input", render);
 
-    $("editor").addEventListener("click", event => {
-      if (event.target === $("editor")) closeEditor();
-    });
-
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") closeEditor();
-    });
-
-    refresh().catch(error => {
-      showStatus(
-        "Nem sikerült betölteni a készletet: " + error.message,
-        "error"
-      );
-    });
+    loadProducts();
   </script>
 </body>
   </html>
+  
