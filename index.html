@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -778,3 +777,30 @@
         closeEditor();
       } catch (error) {
         showMes
+            $("editor").addEventListener("click", event => {
+      if (event.target === $("editor")) closeEditor();
+    });
+
+    async function start() {
+      pin = localStorage.getItem("fridge_pin") ||
+            sessionStorage.getItem("fridge_pin") || "";
+
+      if (!pin) return;
+
+      try {
+        await refresh();
+        $("login").classList.add("hidden");
+        $("app").classList.remove("hidden");
+        $("add-button").classList.remove("hidden");
+      } catch {
+        localStorage.removeItem("fridge_pin");
+        sessionStorage.removeItem("fridge_pin");
+        pin = "";
+        $("login").classList.remove("hidden");
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
