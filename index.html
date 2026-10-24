@@ -776,8 +776,20 @@
         await refresh();
         closeEditor();
       } catch (error) {
-        showMes
-            $("editor").addEventListener("click", event => {
+        
+        showMessage("form-message", "Törlési hiba: " + error.message);
+      }
+    }
+
+    $("login-form").addEventListener("submit", handleLogin);
+    $("product-form").addEventListener("submit", handleSave);
+    $("search").addEventListener("input", renderProducts);
+    $("add-button").addEventListener("click", () => openEditor());
+    $("close-editor").addEventListener("click", closeEditor);
+    $("cancel-editor").addEventListener("click", closeEditor);
+    $("delete-button").addEventListener("click", handleDelete);
+
+    $("editor").addEventListener("click", event => {
       if (event.target === $("editor")) closeEditor();
     });
 
