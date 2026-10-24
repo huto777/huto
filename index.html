@@ -360,9 +360,7 @@
 <body>
   <main class="container">
     <header>
-      <h1>🥬 Hűtőkészlet</h1>
-      <p class="subtitle">
-        Tudd, mi van a hűtőben, és mi jár le leghamarabb.
+      <h1>Hűtőkészlet</h1>
       </p>
     </header>
 
@@ -418,7 +416,7 @@
 
     <section class="panel">
       <div class="toolbar">
-        <h2>📦 Termékek</h2>
+        <h2>Termékek</h2>
         <span id="count" class="count">Betöltés…</span>
       </div>
 
@@ -486,7 +484,7 @@
     }
 
     async function api(action, data = {}) {
-      if (API_URL === "IDE_JON_A_SUPABASE_FUNCTION_URL") {
+      if (API_URL === "https://tvotoadiuakjjxsqrexi.supabase.co/functions/v1/smooth-processor") {
         throw new Error(
           "A Supabase-kapcsolat még nincs beállítva. Először a háttérprogramot kell létrehoznunk."
         );
