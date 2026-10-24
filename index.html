@@ -30,10 +30,11 @@ button{border:0;padding:12px 16px;cursor:pointer;font-weight:650}
 .count{color:var(--muted);font-size:13px}
 .search-wrap{margin-bottom:14px}
 .product-list{display:grid;gap:10px}
-.product{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:12px;border:1px solid var(--border);border-left:5px solid #8993a3;background:#202735}
+.product{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:12px;border:1px solid var(--border);border-left:5px solid #8993a3;background:#202735;transition:transform .35s ease,box-shadow .35s ease,border-color .35s ease}
 .product.expired{border-left-color:#ff4f61;background:#321e28}
 .product.soon-blue{border-left-color:#429bff;background:#192c43}
 .product.soon-green{border-left-color:#38c985;background:#19362e}
+.product.just-saved{transform:scale(1.035);box-shadow:0 0 0 2px var(--accent),0 0 24px #3988ef80;z-index:1}
 .number{display:flex;align-items:center;justify-content:center;flex:0 0 40px;height:40px;border-radius:10px;background:#0003;font-size:17px;font-weight:750}
 .product-info{flex:1;min-width:0}
 .product-name{font-weight:700;overflow-wrap:anywhere}
@@ -75,12 +76,15 @@ button{border:0;padding:12px 16px;cursor:pointer;font-weight:650}
  .full{grid-column:auto}
  .fab{width:58px;height:58px;right:18px;bottom:18px}
 }
+@media(prefers-reduced-motion:reduce){
+ .product{transition:none}
+}
 </style>
 </head>
 <body>
 <main>
 <header>
-<h1>🥬 Hűtőkészlet</h1>
+<h1>Hűtőkészlet</h1>
 <p class="subtitle">A legkorábban lejáró termék mindig legfelül.</p>
 </header>
 
@@ -88,7 +92,7 @@ button{border:0;padding:12px 16px;cursor:pointer;font-weight:650}
 
 <section class="panel">
 <div class="toolbar">
-<h2>📦 Termékek</h2>
+<h2>Termékek</h2>
 <span id="count" class="count">Betöltés…</span>
 </div>
 <div class="search-wrap">
@@ -235,7 +239,7 @@ function makeButton(label,cls,fn){
  b.type="button";b.className=cls;b.textContent=label;b.addEventListener("click",fn);
  return b;
 }
-function render(){
+function render(highlightId=null){
  const query=searchInput.value.trim().toLocaleLowerCase("hu");
  const filtered=sorted(products).filter(p=>
   [p.name,p.category,String(p.product_number)].join(" ").toLocaleLowerCase("hu").includes(query)
@@ -250,6 +254,7 @@ function render(){
  for(const p of filtered){
   const status=getStatus(p),card=document.createElement("article");
   card.className="product "+status.cls;
+  card.dataset.productId=String(p.id);
   const number=document.createElement("div");number.className="number";number.textContent=p.product_number;
   const info=document.createElement("div");info.className="product-info";
   const name=document.createElement("div");name.className="product-name";name.textContent=p.name;
@@ -266,11 +271,19 @@ function render(){
   );
   card.append(number,info,actions);productList.appendChild(card);
  }
+ if(highlightId!==null){
+  const card=productList.querySelector(`[data-product-id="${CSS.escape(String(highlightId))}"]`);
+  if(card){
+   card.classList.add("just-saved");
+   card.scrollIntoView({behavior:"smooth",block:"center"});
+   setTimeout(()=>card.classList.remove("just-saved"),2600);
+  }
+ }
 }
-async function loadProducts(){
+async function loadProducts(highlightId=null){
  try{
   products=await api("list")||[];
-  render();clearMessage();
+  render(highlightId);clearMessage();
  }catch(error){
   productList.replaceChildren();
   const empty=document.createElement("div");empty.className="empty";
@@ -298,16 +311,19 @@ form.addEventListener("submit",async e=>{
  if(!name||name.length>120||!categories.includes(category)||!expiry_date){
   showMessage("Ellenőrizd a nevet, kategóriát és lejárati dátumot.");return;
  }
+ const wasEditing=editingId!==null;
+ const editedId=editingId;
  busy=true;saveButton.disabled=true;
  saveButton.textContent="Mentés…";
  try{
-  if(editingId!==null){
-   await api("update",{id:editingId,name,category,expiry_date});
+  let savedProduct;
+  if(wasEditing){
+   savedProduct=await api("update",{id:editedId,name,category,expiry_date});
   }else{
-   await api("add",{name,category,expiry_date});
+   savedProduct=await api("add",{name,category,expiry_date});
   }
   resetForm();closeModal();showMessage("Sikeresen elmentve.","success");
-  await loadProducts();
+  await loadProducts(savedProduct?.id ?? (wasEditing ? editedId : null));
  }catch(error){showMessage(error.message);}
  finally{
   busy=false;saveButton.disabled=false;
