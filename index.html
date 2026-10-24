@@ -1,435 +1,780 @@
+
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#101827">
-<title>Hűtő</title>
-<style>
-:root {
-  color-scheme: dark;
-  --bg: #101827;
-  --panel: #1b2638;
-  --border: #334155;
-  --blue: #2997ff;
-  --text: #f1f5f9;
-  --muted: #9caec3;
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  padding: 20px 16px 100px;
-  background: var(--bg);
-  color: var(--text);
-  font-family: Arial, sans-serif;
-}
-main { max-width: 700px; margin: auto; }
-h1 { margin: 8px 0 20px; font-size: 32px; }
-input, select, button {
-  font: inherit;
-}
-input, select {
-  width: 100%;
-  padding: 13px;
-  margin: 5px 0 14px;
-  color: var(--text);
-  background: #111c2d;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-#search { margin-bottom: 16px; }
-.product {
-  padding: 15px;
-  margin-bottom: 10px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-left: 5px solid #94a3b8;
-  border-radius: 12px;
-  cursor: pointer;
-}
-.product.expired { border-left-color: #ff4545; }
-.product.soon { border-left-color: #2997ff; }
-.product.medium { border-left-color: #35d07f; }
-.product-top {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: start;
-}
-.product-name { font-size: 17px; font-weight: bold; overflow-wrap: anywhere; }
-.product-number { color: var(--muted); font-size: 12px; }
-.product-meta { color: var(--muted); font-size: 14px; margin-top: 8px; }
-.empty { color: var(--muted); text-align: center; padding: 35px 10px; }
-#add {
-  position: fixed;
-  right: 22px;
-  bottom: 22px;
-  width: 60px;
-  height: 60px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--blue);
-  color: white;
-  font-size: 36px;
-  box-shadow: 0 5px 24px #0007;
-  cursor: pointer;
-  z-index: 5;
-}
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: #0009;
-  z-index: 10;
-  display: none;
-  align-items: end;
-}
-#overlay.open { display: flex; }
-.sheet {
-  width: 100%;
-  max-height: 90dvh;
-  overflow-y: auto;
-  padding: 24px 20px calc(24px + env(safe-area-inset-bottom));
-  background: #182437;
-  border-radius: 22px 22px 0 0;
-  border-top: 1px solid var(--border);
-}
-.sheet-inner { max-width: 660px; margin: auto; }
-.sheet h2 { margin: 0 0 22px; }
-label { display: block; font-size: 14px; color: #c5d2e2; }
-.actions { display: flex; gap: 10px; flex-wrap: wrap; }
-.actions button, .primary, .secondary, .danger {
-  border: 0;
-  border-radius: 10px;
-  padding: 13px 16px;
-  cursor: pointer;
-}
-.primary { background: var(--blue); color: white; flex: 1; }
-.secondary { background: #344257; color: white; }
-.danger { background: #8e2937; color: white; }
-#message { color: #a9c8ed; font-size: 14px; margin: 12px 0; }
-#login {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  background: var(--bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 22px;
-}
-#login.hidden { display: none; }
-.login-card {
-  width: 100%;
-  max-width: 380px;
-  padding: 24px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-}
-.login-card h1 { margin-top: 0; }
-button:disabled { opacity: .6; cursor: wait; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f6fa">
+  <title>Hűtő</title>
+  <style>
+    :root {
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --text: #202331;
+      --muted: #777d8c;
+      --border: #e5e7ee;
+      --blue: #3478f6;
+      --red-bg: #ffe4e4;
+      --red: #b42318;
+      --green-bg: #dff7e6;
+      --green: #16723a;
+      --soon-bg: #dceaff;
+      --soon: #2058bd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    button { cursor: pointer; }
+
+    .page {
+      width: min(100% - 28px, 620px);
+      margin: 0 auto;
+      padding: 24px 0 100px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: -1px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 5px;
+    }
+
+    .count {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 9px 12px;
+      border-radius: 14px;
+      font-size: 13px;
+    }
+
+    .search-wrap { margin-bottom: 14px; }
+
+    .search {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: white;
+      outline: none;
+    }
+
+    .search:focus, input:focus, select:focus {
+      border-color: var(--blue);
+    }
+
+    .filters {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 2px 0 14px;
+    }
+
+    .filter {
+      white-space: nowrap;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text);
+      border-radius: 20px;
+      padding: 9px 13px;
+      font-size: 13px;
+    }
+
+    .filter.active {
+      background: var(--text);
+      color: white;
+      border-color: var(--text);
+    }
+
+    .products {
+      display: grid;
+      gap: 10px;
+    }
+
+    .product {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 5px solid #cbd0da;
+      border-radius: 16px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      text-align: left;
+      color: inherit;
+    }
+
+    .product.expired {
+      background: var(--red-bg);
+      border-left-color: var(--red);
+    }
+
+    .product.soon {
+      background: var(--soon-bg);
+      border-left-color: var(--soon);
+    }
+
+    .product.medium {
+      background: var(--green-bg);
+      border-left-color: var(--green);
+    }
+
+    .number {
+      width: 39px;
+      height: 39px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,.8);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .product-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .product-name {
+      font-size: 16px;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .product-meta {
+      color: #555c6b;
+      font-size: 12px;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    .days {
+      flex-shrink: 0;
+      text-align: right;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 42px 15px;
+      color: var(--muted);
+      background: white;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .add-button {
+      position: fixed;
+      right: max(22px, calc((100vw - 620px) / 2));
+      bottom: 22px;
+      width: 60px;
+      height: 60px;
+      border: 0;
+      border-radius: 21px;
+      color: white;
+      background: var(--blue);
+      font-size: 34px;
+      box-shadow: 0 7px 22px #3478f655;
+      z-index: 5;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: #11182777;
+      z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .hidden { display: none !important; }
+
+    .sheet {
+      width: min(100%, 620px);
+      max-height: 90dvh;
+      overflow-y: auto;
+      background: white;
+      border-radius: 24px 24px 0 0;
+      padding: 22px 20px max(24px, env(safe-area-inset-bottom));
+      animation: rise .18s ease-out;
+    }
+
+    @keyframes rise {
+      from { transform: translateY(30px); opacity: .5; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .sheet-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .sheet h2 {
+      font-size: 21px;
+      margin: 0;
+    }
+
+    .close {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--bg);
+      font-size: 22px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .field input, .field select {
+      display: block;
+      width: 100%;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      outline: none;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .primary, .secondary, .danger {
+      padding: 13px;
+      border-radius: 12px;
+      border: 0;
+      font-weight: 700;
+    }
+
+    .primary { background: var(--blue); color: white; }
+    .secondary { background: #eef0f5; color: var(--text); }
+    .danger { background: #ffe5e5; color: var(--red); }
+
+    .full { width: 100%; }
+
+    .login-card {
+      margin: 60px auto 0;
+      max-width: 420px;
+      padding: 25px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+    }
+
+    .login-card h2 { margin-top: 0; }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 13px 0;
+      font-size: 13px;
+    }
+
+    .remember input { width: auto; }
+
+    .message {
+      margin: 12px 0;
+      font-size: 13px;
+      color: var(--red);
+      line-height: 1.5;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--muted);
+      margin: 0 0 15px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+
+    .login-title {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+  </style>
 </head>
 <body>
-<main>
-  <h1>Hűtő</h1>
-  <input id="search" type="search"
-    placeholder="Keresés név vagy sorszám alapján..."
-    aria-label="Termék keresése">
-  <div id="message" role="status"></div>
-  <div id="list"><div class="empty">Betöltés...</div></div>
-</main>
+  <main class="page">
+    <section id="login" class="login-card">
+      <div class="login-title">Hűtő</div>
+      <p>Írd be a családi PIN-kódot a közös készlet megnyitásához.</p>
+      <form id="login-form">
+        <div class="field">
+          <label for="pin">PIN-kód</label>
+          <input id="pin" type="password" inputmode="numeric"
+                 autocomplete="current-password" required>
+        </div>
+        <label class="remember">
+          <input id="remember" type="checkbox" checked>
+          Belépés megjegyzése ezen a telefonon
+        </label>
+        <button class="primary full" type="submit">Belépés</button>
+        <div id="login-message" class="message"></div>
+      </form>
+    </section>
 
-<button id="add" aria-label="Új termék hozzáadása">+</button>
+    <section id="app" class="hidden">
+      <header>
+        <div>
+          <h1>Hűtő</h1>
+          <div class="subtitle">Közös élelmiszerkészlet</div>
+        </div>
+        <div class="count"><span id="count">0</span> termék</div>
+      </header>
 
-<div id="overlay">
-  <section class="sheet">
-    <div class="sheet-inner">
-      <h2 id="formTitle">Új termék</h2>
-      <form id="productForm">
-        <label for="name">Termék neve</label>
-        <input id="name" maxlength="120" required>
+      <div class="search-wrap">
+        <input id="search" class="search"
+               placeholder="Keresés név vagy sorszám alapján…"
+               autocomplete="off">
+      </div>
 
-        <label for="date">Lejárati dátum</label>
-        <input id="date" type="date" required>
+      <div id="filters" class="filters"></div>
 
-        <label for="category">Kategória</label>
-        <select id="category">
-          <option>Tejtermék</option>
-          <option>Hús</option>
-          <option>Zöldség</option>
-          <option>Gyümölcs</option>
-          <option>Ital</option>
-          <option>Felvágott</option>
-          <option>Szósz</option>
-          <option>Maradék</option>
-          <option>Egyéb</option>
-        </select>
+      <div class="legend">
+        <span><i class="dot" style="background:#b42318"></i>Lejárt</span>
+        <span><i class="dot" style="background:#2058bd"></i>10 napon belül</span>
+        <span><i class="dot" style="background:#16723a"></i>11–30 nap</span>
+        <span><i class="dot" style="background:#cbd0da"></i>30 nap felett</span>
+      </div>
+
+      <div id="products" class="products"></div>
+      <div id="app-message" class="message"></div>
+    </section>
+  </main>
+
+  <button id="add-button" class="add-button hidden"
+          aria-label="Termék hozzáadása">+</button>
+
+  <div id="editor" class="overlay hidden">
+    <section class="sheet">
+      <div class="sheet-top">
+        <h2 id="editor-title">Új termék</h2>
+        <button id="close-editor" class="close" aria-label="Bezárás">×</button>
+      </div>
+
+      <form id="product-form">
+        <div class="field">
+          <label for="product-number">Sorszám</label>
+          <select id="product-number" required></select>
+          <div class="hint">
+            A sorszám a termékhez tartozik, és nem változik meg.
+            Törlés után újra kiválasztható.
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="product-name">Termék neve</label>
+          <input id="product-name" maxlength="120"
+                 placeholder="Pl. tej" required>
+        </div>
+
+        <div class="field">
+          <label for="expiry-date">Lejárati dátum</label>
+          <input id="expiry-date" type="date" required>
+        </div>
+
+        <div class="field">
+          <label for="category">Kategória</label>
+          <select id="category" required>
+            <option value="Tejtermék">Tejtermék</option>
+            <option value="Hús, hal">Hús, hal</option>
+            <option value="Zöldség, gyümölcs">Zöldség, gyümölcs</option>
+            <option value="Pékáru">Pékáru</option>
+            <option value="Ital">Ital</option>
+            <option value="Konzerv">Konzerv</option>
+            <option value="Fagyasztott">Fagyasztott</option>
+            <option value="Egyéb">Egyéb</option>
+          </select>
+        </div>
+
+        <div id="form-message" class="message"></div>
 
         <div class="actions">
-          <button class="primary" id="save" type="submit">Mentés</button>
-          <button class="secondary" id="cancel" type="button">Mégse</button>
-          <button class="danger" id="delete" type="button"
-            hidden>Törlés</button>
+          <button type="button" id="cancel-editor" class="secondary">Mégse</button>
+          <button type="submit" class="primary">Mentés</button>
         </div>
+        <button type="button" id="delete-button"
+                class="danger full hidden" style="margin-top:10px">
+          Termék törlése
+        </button>
       </form>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>
 
-<div id="login">
-  <form id="loginForm" class="login-card">
-    <h1>Hűtő</h1>
-    <p>Add meg a családi PIN-kódot.</p>
-    <label for="pin">PIN-kód</label>
-    <input id="pin" type="password" inputmode="numeric"
-      autocomplete="current-password" required>
-    <label style="display:flex;gap:9px;align-items:center;margin-bottom:16px">
-      <input id="remember" type="checkbox" checked
-        style="width:auto;margin:0">
-      Belépés megjegyzése ezen a telefonon
-    </label>
-    <button class="primary" id="loginButton" type="submit"
-      style="width:100%">Belépés</button>
-    <div id="loginError" role="status"></div>
-  </form>
-</div>
+  <script>
+    const API_URL =
+      "https://tvotoadiuakjjxsqrexi.supabase.co/functions/v1/smooth-processor";
 
-<script>
-const API_URL =
-  "https://tvotoadiuakjjxsqrexi.supabase.co/functions/v1/smooth-processor";
+    const PUBLISHABLE_KEY =
+      "sb_publishable_rmGfVCE9AJvZ1u_YFnjHzA_yT05nA7P";
 
-const PUBLISHABLE_KEY =
-  "sb_publishable_rmGfVCE9AJvZ1u_YFnjHzA_yT05nA7P";
+    const CATEGORIES = [
+      "Tejtermék",
+      "Hús, hal",
+      "Zöldség, gyümölcs",
+      "Pékáru",
+      "Ital",
+      "Konzerv",
+      "Fagyasztott",
+      "Egyéb"
+    ];
 
-const $ = id => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
-let pin = sessionStorage.getItem("fridge_pin") || "";
-let products = [];
-let editingId = null;
-let busy = false;
+    let pin = "";
+    let products = [];
+    let editingId = null;
+    let activeCategory = "Mind";
 
-function message(text) {
-  $("message").textContent = text;
-}
-
-async function api(action, extra = {}) {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "apikey": PUBLISHABLE_KEY
-    },
-    body: JSON.stringify({ pin, action, ...extra })
-  });
-
-  let result;
-  try {
-    result = await response.json();
-  } catch {
-    throw new Error("A szerver nem adott értelmezhető választ.");
-  }
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      throw new Error("Hibás PIN-kód. Ellenőrizd a beállítást.");
-    }
-    throw new Error(result.error || "Szerverhiba: " + response.status);
-  }
-  return result.data;
-}
-
-function daysUntil(date) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const expiry = new Date(date + "T00:00:00");
-  return Math.round((expiry - today) / 86400000);
-}
-
-function render() {
-  const query = $("search").value.trim().toLocaleLowerCase("hu");
-
-  const sorted = [...products].sort((a, b) =>
-    a.expiry_date.localeCompare(b.expiry_date)
-  );
-
-  const visible = sorted.filter((p, i) =>
-    p.name.toLocaleLowerCase("hu").includes(query) ||
-    String(i + 1).includes(query)
-  );
-
-  $("list").replaceChildren();
-
-  if (!visible.length) {
-    const empty = document.createElement("div");
-    empty.className = "empty";
-    empty.textContent = products.length
-      ? "Nincs találat."
-      : "Még nincs termék a hűtőben. Koppints a + gombra!";
-    $("list").append(empty);
-    return;
-  }
-
-  visible.forEach(p => {
-    const index = sorted.findIndex(item => item.id === p.id) + 1;
-    const days = daysUntil(p.expiry_date);
-
-    const card = document.createElement("article");
-    card.className = "product " +
-      (days < 0 ? "expired" :
-       days <= 10 ? "soon" :
-       days <= 30 ? "medium" : "");
-
-    const top = document.createElement("div");
-    top.className = "product-top";
-
-    const name = document.createElement("div");
-    name.className = "product-name";
-    name.textContent = p.name;
-
-    const number = document.createElement("div");
-    number.className = "product-number";
-    number.textContent = "#" + index;
-
-    top.append(name, number);
-
-    const meta = document.createElement("div");
-    meta.className = "product-meta";
-    meta.textContent = p.expiry_date + " · " + p.category;
-
-    card.append(top, meta);
-    card.addEventListener("click", () => openEditor(p));
-    $("list").append(card);
-  });
-}
-
-async function refresh() {
-  if (!pin) return;
-  message("Adatok betöltése...");
-  try {
-    products = await api("list") || [];
-    render();
-    message("");
-  } catch (error) {
-    message(error.message);
-  }
-}
-
-function openEditor(product = null) {
-  editingId = product ? product.id : null;
-  $("formTitle").textContent = product ? "Termék szerkesztése" : "Új termék";
-  $("name").value = product?.name || "";
-  $("date").value = product?.expiry_date || "";
-  $("category").value = product?.category || "Egyéb";
-  $("delete").hidden = !product;
-  $("overlay").classList.add("open");
-  if (!product) $("date").value = "";
-  $("name").focus();
-}
-
-function closeEditor() {
-  $("overlay").classList.remove("open");
-  $("productForm").reset();
-  editingId = null;
-}
-
-async function runBusy(button, task) {
-  if (busy) return;
-  busy = true;
-  button.disabled = true;
-  try {
-    await task();
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    busy = false;
-    button.disabled = false;
-  }
-}
-
-$("loginForm").addEventListener("submit", async event => {
-  event.preventDefault();
-  const enteredPin = $("pin").value.trim();
-  if (!enteredPin) return;
-
-  $("loginButton").disabled = true;
-  $("loginError").textContent = "Ellenőrzés...";
-
-  pin = enteredPin;
-  try {
-    await api("list");
-    if ($("remember").checked) {
-      sessionStorage.removeItem("fridge_pin");
-      localStorage.setItem("fridge_pin", pin);
-    } else {
-      localStorage.removeItem("fridge_pin");
-      sessionStorage.setItem("fridge_pin", pin);
+    function showMessage(id, text) {
+      $(id).textContent = text || "";
     }
 
-    products = await api("list") || [];
-    $("login").classList.add("hidden");
-    $("pin").value = "";
-    render();
-    message("");
-  } catch (error) {
-    pin = "";
-    $("loginError").textContent = error.message;
-  } finally {
-    $("loginButton").disabled = false;
-  }
-});
+    async function api(action, extra = {}) {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": PUBLISHABLE_KEY
+        },
+        body: JSON.stringify({ pin, action, ...extra })
+      });
 
-$("add").addEventListener("click", () => openEditor());
-$("cancel").addEventListener("click", closeEditor);
-$("search").addEventListener("input", render);
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error("A szerver nem értelmezhető választ küldött.");
+      }
 
-$("productForm").addEventListener("submit", async event => {
-  event.preventDefault();
+      if (!response.ok) {
+        throw new Error(result.error || "A művelet nem sikerült.");
+      }
 
-  const button = $("save");
-  await runBusy(button, async () => {
-    const data = {
-      name: $("name").value.trim(),
-      expiry_date: $("date").value,
-      category: $("category").value
-    };
-
-    if (!data.name || !data.expiry_date) {
-      throw new Error("Add meg a termék nevét és lejárati dátumát.");
+      return result.data;
     }
 
-    if (editingId !== null) {
-      await api("update", { id: editingId, ...data });
-    } else {
-      await api("add", data);
+    function dayDifference(dateString) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const expiry = new Date(dateString + "T00:00:00");
+      return Math.round((expiry - today) / 86400000);
     }
 
-    closeEditor();
-    await refresh();
-  });
-});
+    function dateText(dateString) {
+      const [year, month, day] = dateString.split("-");
+      return `${year}. ${month}. ${day}.`;
+    }
 
-$("delete").addEventListener("click", async () => {
-  if (editingId === null) return;
-  if (!confirm("Biztosan törlöd ezt a terméket?")) return;
+    function statusFor(product) {
+      const days = dayDifference(product.expiry_date);
+      if (days < 0) return "expired";
+      if (days <= 10) return "soon";
+      if (days <= 30) return "medium";
+      return "";
+    }
 
-  await runBusy($("delete"), async () => {
-    await api("delete", { id: editingId });
-    closeEditor();
-    await refresh();
-  });
-});
+    function statusText(product) {
+      const days = dayDifference(product.expiry_date);
+      if (days < 0) return `${Math.abs(days)} napja lejárt`;
+      if (days === 0) return "Ma jár le";
+      if (days === 1) return "Holnap jár le";
+      return `${days} nap van hátra`;
+    }
 
-pin = localStorage.getItem("fridge_pin") ||
-      sessionStorage.getItem("fridge_pin") || "";
+    function renderFilters() {
+      const categories = [
+        "Mind",
+        ...CATEGORIES.filter(category =>
+          products.some(p => p.category === category)
+        )
+      ];
 
-if (pin) {
-  $("login").classList.add("hidden");
-  refresh().catch(error => message(error.message));
-} else {
-  $("login").classList.remove("hidden");
-}
-</script>
-</body>
-                                    </html>
-                                    
+      if (!categories.includes(activeCategory)) {
+        activeCategory = "Mind";
+      }
+
+      $("filters").replaceChildren();
+
+      categories.forEach(category => {
+        const button = document.createElement("button");
+        button.className = "filter" +
+          (activeCategory === category ? " active" : "");
+        button.textContent = category;
+        button.type = "button";
+        button.addEventListener("click", () => {
+          activeCategory = category;
+          renderFilters();
+          renderProducts();
+        });
+        $("filters").appendChild(button);
+      });
+    }
+
+    function renderProducts() {
+      const search = $("search").value.trim().toLocaleLowerCase("hu");
+      const container = $("products");
+      container.replaceChildren();
+
+      const filtered = products
+        .filter(product => {
+          const matchesCategory = activeCategory === "Mind" ||
+            product.category === activeCategory;
+          const matchesSearch =
+            String(product.product_number).includes(search) ||
+            product.name.toLocaleLowerCase("hu").includes(search);
+          return matchesCategory && matchesSearch;
+        })
+        .sort((a, b) => {
+          const dateOrder = a.expiry_date.localeCompare(b.expiry_date);
+          return dateOrder || a.product_number - b.product_number;
+        });
+
+      $("count").textContent = products.length;
+
+      if (!filtered.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = products.length
+          ? "Nincs ilyen termék a listában."
+          : "Még nincs termék a hűtőben. Nyomd meg a + gombot!";
+        container.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach(product => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "product " + statusFor(product);
+
+        const number = document.createElement("div");
+        number.className = "number";
+        number.textContent = product.product_number;
+
+        const info = document.createElement("div");
+        info.className = "product-info";
+
+        const name = document.createElement("div");
+        name.className = "product-name";
+        name.textContent = product.name;
+
+        const meta = document.createElement("div");
+        meta.className = "product-meta";
+        meta.textContent =
+          `${product.category} · Lejár: ${dateText(product.expiry_date)}`;
+
+        const days = document.createElement("div");
+        days.className = "days";
+        days.textContent = statusText(product);
+
+        info.append(name, meta);
+        button.append(number, info, days);
+        button.addEventListener("click", () => openEditor(product));
+        container.appendChild(button);
+      });
+    }
+
+    async function refresh() {
+      products = await api("list") || [];
+      renderFilters();
+      renderProducts();
+    }
+
+    function availableNumbers(currentNumber = null) {
+      const used = new Set(
+        products
+          .filter(product => product.id !== editingId)
+          .map(product => Number(product.product_number))
+      );
+
+      const select = $("product-number");
+      select.replaceChildren();
+
+      if (currentNumber !== null) used.delete(Number(currentNumber));
+
+      const maxNumber = Math.max(50, ...used, currentNumber || 0);
+      for (let number = 1; number <= maxNumber + 1; number++) {
+        if (!used.has(number) || number === Number(currentNumber)) {
+          const option = document.createElement("option");
+          option.value = number;
+          option.textContent = String(number);
+          select.appendChild(option);
+        }
+      }
+
+      if (currentNumber !== null) {
+        select.value = String(currentNumber);
+      } else {
+        const firstFree = [...select.options].find(option =>
+          !used.has(Number(option.value))
+        );
+        if (firstFree) select.value = firstFree.value;
+      }
+    }
+
+    function openEditor(product = null) {
+      editingId = product ? product.id : null;
+      $("editor-title").textContent =
+        product ? "Termék szerkesztése" : "Új termék";
+      $("product-name").value = product ? product.name : "";
+      $("expiry-date").value = product ? product.expiry_date : "";
+      $("category").value = product
+        ? product.category
+        : "Tejtermék";
+
+      availableNumbers(product ? product.product_number : null);
+      $("delete-button").classList.toggle("hidden", !product);
+      showMessage("form-message", "");
+      $("editor").classList.remove("hidden");
+    }
+
+    function closeEditor() {
+      $("editor").classList.add("hidden");
+      editingId = null;
+    }
+
+    async function handleLogin(event) {
+      event.preventDefault();
+      pin = $("pin").value.trim();
+      showMessage("login-message", "");
+
+      try {
+        await refresh();
+
+        const storage = $("remember").checked
+          ? localStorage
+          : sessionStorage;
+        const otherStorage = $("remember").checked
+          ? sessionStorage
+          : localStorage;
+
+        otherStorage.removeItem("fridge_pin");
+        storage.setItem("fridge_pin", pin);
+
+        $("login").classList.add("hidden");
+        $("app").classList.remove("hidden");
+        $("add-button").classList.remove("hidden");
+      } catch (error) {
+        pin = "";
+        showMessage(
+          "login-message",
+          error.message === "Incorrect PIN"
+            ? "Hibás PIN-kód."
+            : "Nem sikerült belépni: " + error.message
+        );
+      }
+    }
+
+    async function handleSave(event) {
+      event.preventDefault();
+      showMessage("form-message", "");
+
+      const productNumber = Number($("product-number").value);
+      const name = $("product-name").value.trim();
+      const expiryDate = $("expiry-date").value;
+      const category = $("category").value;
+
+      if (!Number.isInteger(productNumber) || productNumber < 1) {
+        showMessage("form-message", "Válassz érvényes sorszámot.");
+        return;
+      }
+
+      const duplicate = products.some(product =>
+        Number(product.product_number) === productNumber &&
+        product.id !== editingId
+      );
+
+      if (duplicate) {
+        showMessage("form-message", "Ez a sorszám már foglalt.");
+        return;
+      }
+
+      try {
+        const details = {
+          product_number: productNumber,
+          name,
+          expiry_date: expiryDate,
+          category
+        };
+
+        if (editingId !== null) {
+          await api("update", { id: editingId, ...details });
+        } else {
+          await api("add", details);
+        }
+
+        await refresh();
+        closeEditor();
+      } catch (error) {
+        showMessage("form-message", "Mentési hiba: " + error.message);
+      }
+    }
+
+    async function handleDelete() {
+      if (editingId === null) return;
+      if (!confirm("Biztosan törlöd ezt a terméket? A sorszáma felszabadul.")) {
+        return;
+      }
+
+      try {
+        await api("delete", { id: editingId });
+        await refresh();
+        closeEditor();
+      } catch (error) {
+        showMes
